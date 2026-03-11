@@ -1,5 +1,5 @@
 # Specify compiler
-CXX = g++
+CXX = g++-10
 # CXXFLAGS = -std=c++17 -Wall
 CXXFLAGS = -std=c++20 -Wall
 

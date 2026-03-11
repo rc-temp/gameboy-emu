@@ -1,4 +1,4 @@
-#include <format>
+// #include <format>
 #include <string>
 #include <fstream>
 #include "cartridge.h"
@@ -54,7 +54,9 @@ uint8_t Cartridge::read(int address) {
     if (mbc_type == 0 || true) {
         return rom.at(address);
     } else {
-        throw std::runtime_error(std::format("mbc type {} is not implemented yet", mbc_type));
+        // NOTE: wish we could use std::format(), meh
+        // throw std::runtime_error(std::format("mbc type {} is not implemented yet", mbc_type));
+        throw std::runtime_error("mbc type " + std::to_string(mbc_type) + " is not implemented yet");
     }
 }
 
@@ -62,6 +64,7 @@ void Cartridge::write(int address, uint8_t val) {
     if (mbc_type == 0) {
         rom.at(address) = val;
     } else {
-        throw std::runtime_error(std::format("mbc type {} is not implemented yet", mbc_type));
+        // throw std::runtime_error(std::format("mbc type {} is not implemented yet", mbc_type));
+        throw std::runtime_error("mbc type " + std::to_string(mbc_type) + " is not implemented yet");
     }
 }
