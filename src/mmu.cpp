@@ -53,7 +53,7 @@ uint8_t MMU::read(int address) {
     } else if (address < 0xFE00) {
         // Echo RAM (mirror of C000–DDFF)
         // throw std::runtime_error("use of this area is prohibited: " + std::to_string(address));
-        std::cerr << "use of this area (Echo RAM) is prohibited, but proceding anyway: " + std::to_string(address);
+        std::cerr << "use of this area (Echo RAM) is prohibited, but proceding anyway: " + std::to_string(address) << "\n";
         return this->read(address - 0xFE00 + 0xC000);
     } else if (address < 0xFEA0) {
         // Object attribute memory (OAM)
