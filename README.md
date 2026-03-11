@@ -4,4 +4,4 @@ Compile with `make all`. Run with `./build/bin/gameboy-emu [path/to/rom]`. Must 
 
 Progress
 ========
-Test roms roughly passing.
+cpu instruction test roms passing, except for 02 and 07
