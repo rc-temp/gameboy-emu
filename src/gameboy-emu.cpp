@@ -36,141 +36,10 @@ void Gameboy::write_cartridge(int address, uint8_t val) {
     cartridge->write(address, val);
 }
 
-void render_graphics0(SDL_Renderer *renderer, SDL_Surface *surface) {
-    // TODO: document what this function does/is for, is it for testing?
-
-    SDL_Rect box;
-    box.w = 10;
-    box.h = 10;
-    box.x = 0;
-    box.y = 0;
-    // SDL_SetRenderDrawColor(renderer, 0,0,0,0);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
-    SDL_RenderClear(renderer);
-    //outline rect
-    // SDL_SetRenderDrawColor(renderer, r , g , b, a);
-    SDL_SetRenderDrawColor(renderer, 10, 20, 30, 40);
-    SDL_RenderDrawRect(renderer, &box);
-    // SDL_SetRenderDrawColor(renderer, r , g , b, a);
-    SDL_SetRenderDrawColor(renderer, 5, 10, 15, 20);
-    //fill up rectangle with color
-    SDL_RenderFillRect(renderer, &box);
-    SDL_RenderPresent(renderer);
-
-
-    // SDL_RenderClear(rend);
-    // SDL_RenderCopy(rend, tex, NULL, &dest);
-    // SDL_RenderPresent(rend);
-}
-
-void render_graphics1(SDL_Renderer *renderer, SDL_Surface *surface, Gameboy gameboy) {
-    // TODO: document what this function does/is for, is it for testing?
-
-    auto memory = *gameboy.mmu;
-
-    for (int i = 0xFE00; i < 0xFEA0; i++) {
-        memory.write(i, std::rand() % 256);
-    }
-    for (int i = 0x8000; i < 0x9000; i++) {
-        memory.write(i, std::rand() % 256);
-    }
-
-    SDL_RenderClear(renderer);
-    std::vector<uint8_t> pixels(8 * 8 * 4, 0);
-    SDL_Texture* texture = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_ARGB8888,
-        SDL_TEXTUREACCESS_STREAMING,
-        8,
-        8
-    );
-
-    for (int i = 0xFE00; i < 0xFEA0;) {
-        uint8_t y = memory.read(i++);
-        uint8_t x = memory.read(i++);
-
-        uint8_t tile_index = memory.read(i++);
-        uint8_t attributes = memory.read(i++);
-
-        int j = 0x8000 + 16 * tile_index;
-        for (int k = 0; k < 8; k++) {
-            int lo_bits = memory.read(j + 2 * k);
-            int hi_bits = memory.read(j + 2 * k + 1);
-            for (int l = 0; l < 8; l++) {
-                int lo_bit = (lo_bits >> (7 - l)) & 1;
-                int hi_bit = (hi_bits >> (7 - l)) & 1;
-                int intensity = (hi_bit << 1) | lo_bit;
-                pixels.at(4 * (8 * k + l))     = intensity * 255 / 4; // B
-                pixels.at(4 * (8 * k + l) + 1) = intensity * 255 / 4; // G
-                pixels.at(4 * (8 * k + l) + 2) = intensity * 255 / 4; // R
-                pixels.at(4 * (8 * k + l) + 3) = 255; // A //  what to set this to?
-            }
-        }
-
-
-        unsigned char* lockedPixels = nullptr;
-        int pitch = 0;
-        SDL_LockTexture(texture, nullptr, reinterpret_cast< void** >( &lockedPixels ), &pitch);
-        std::copy(pixels.begin(), pixels.end(), lockedPixels);
-        SDL_UnlockTexture(texture);
-
-        SDL_Rect thing;
-        thing.w = 8;
-        thing.h = 8;
-        thing.x = x;
-        thing.y = y;
-        SDL_RenderCopy(renderer, texture, nullptr, &thing);
-
-    }
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(texture);
-
-    // SDL_Rect box;
-    // box.w = 10;
-    // box.h = 10;
-    // box.x = 0;
-    // box.y = 0;
-    // // SDL_SetRenderDrawColor(renderer, 0,0,0,0);
-    // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
-    // SDL_RenderClear(renderer);
-    // //outline rect
-    // // SDL_SetRenderDrawColor(renderer, r , g , b, a);
-    // SDL_SetRenderDrawColor(renderer, 10, 20, 30, 40);
-    // SDL_RenderDrawRect(renderer, &box);
-    // // SDL_SetRenderDrawColor(renderer, r , g , b, a);
-    // SDL_SetRenderDrawColor(renderer, 5, 10, 15, 20);
-    // //fill up rectangle with color
-    // SDL_RenderFillRect(renderer, &box);
-    // SDL_RenderPresent(renderer);
-
-
-    // SDL_RenderClear(rend);
-    // SDL_RenderCopy(rend, tex, NULL, &dest);
-    // SDL_RenderPresent(rend);
-}
-
-
-void render_graphics2(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Texture *texture,std::vector<uint8_t> pixels, Gameboy gameboy) {
+void render_graphics(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Texture *texture,std::vector<uint8_t> pixels, Gameboy gameboy) {
     // TODO: document what this function does/is for, is it for testing?
 
     auto mmu = *gameboy.mmu;
-
-    // // sprite addresses
-    // for (int i = 0xFE00; i < 0xFEA0; i++) {
-    //     mmu.write(i, std::rand() % 256);
-    // }
-    // for (int i = 0x8000; i < 0x9000; i++) {
-    //     mmu.write(i, std::rand() % 256);
-    // }
-
-    // // background addresses
-    // for (int i = 0x8000; i < 0x9800; i++) {
-    //     mmu.write(i, std::rand() % 256);
-    // }
-    // for (int i = 0x9800; i < 0xA000; i++) {
-    //     mmu.write(i, std::rand() % 256);
-    // }
-
 
     // do pixel stuff
     uint8_t lcdc = mmu.read(0xFF40);
@@ -230,7 +99,6 @@ void render_graphics2(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Texture 
 
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
-
 }
 
 
@@ -346,7 +214,7 @@ int main(int argc, char *argv[]) {
             }
 
             cycles -= cycles_per_frame;
-            render_graphics2(renderer, surface, texture, pixels, gameboy);
+            render_graphics(renderer, surface, texture, pixels, gameboy);
 
             std::this_thread::sleep_until(start + std::chrono::nanoseconds(16742706));
             // std::this_thread::sleep_until(start + std::chrono::nanoseconds(15500000));
