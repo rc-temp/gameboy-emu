@@ -37,7 +37,6 @@ void Gameboy::write_cartridge(int address, uint8_t val) {
 }
 
 void render_graphics(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Texture *texture,std::vector<uint8_t> pixels, Gameboy gameboy) {
-    // TODO: document what this function does/is for, is it for testing?
 
     auto mmu = *gameboy.mmu;
 
